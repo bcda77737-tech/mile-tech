@@ -15,46 +15,86 @@
         .hanbang-btn { background: #ffcc00; color: #000; padding: 6px 12px; border-radius: 20px; text-decoration: none; font-weight: bold; font-size: 13px; }
         .undo-btn { background: #ffffff; border: 1px solid #ccc; padding: 6px 12px; border-radius: 20px; font-size: 13px; cursor: pointer; }
 
-        /* 카드 및 헤더 레이아웃 */
+        /* 카드 레이아웃 */
         .calc-card { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 15px; border-top: 4px solid var(--primary); }
         .calc-card.locked { border-top-color: var(--lock); background-color: #f8f9fa; }
-        
-        /* 잠금-삭제 버튼 간격 18px 확보 */
         .card-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 18px; }
-        .name-input { border: none; border-bottom: 1.5px solid #ddd; font-weight: bold; font-size: 15px; color: var(--primary); width: 35% !important; background: transparent; flex-shrink: 0; }
+        .name-input { border: none; border-bottom: 1.5px solid #ddd; font-weight: bold; font-size: 15px; color: var(--primary); width: 35% !important; background: transparent; }
         .update-time { font-size: 9px; color: #999; text-align: right; flex-grow: 1; white-space: nowrap; overflow: hidden; }
-        
-        .lock-btn { background: white; border: 1.5px solid var(--gray); border-radius: 6px; padding: 5px 0; font-size: 11px; font-weight: bold; width: 58px; flex-shrink: 0; text-align: center; }
+        .lock-btn { background: white; border: 1.5px solid var(--gray); border-radius: 6px; padding: 5px 0; font-size: 11px; font-weight: bold; width: 58px; text-align: center; }
         .lock-btn.active { background: var(--lock); color: white; }
-        .del-item-btn { background: var(--red); color: white; border: none; border-radius: 50%; width: 26px; height: 26px; font-size: 14px; font-weight: bold; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+        .del-item-btn { background: var(--red); color: white; border: none; border-radius: 50%; width: 26px; height: 26px; font-size: 14px; font-weight: bold; display: flex; align-items: center; justify-content: center; }
 
-        /* 입력 폼 */
+        /* 입력 및 결과 */
         .input-row { display: flex; gap: 8px; margin-bottom: 10px; }
         .input-box { flex: 1; }
         label { display: block; font-size: 11px; color: #888; margin-bottom: 3px; }
         input[type="number"], input[type="text"] { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; box-sizing: border-box; }
-        
-        /* 결과 그리드 (복구된 4칸 레이아웃) */
         .result-area { margin-top: 12px; padding-top: 10px; border-top: 1px dashed #eee; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; display: none; }
         .res-item { background: #f9f9f9; padding: 8px; border-radius: 6px; text-align: center; }
         .res-val { font-weight: bold; font-size: 14px; display: block; }
         .unit-price { grid-column: span 2; background: #fff4f4; color: #e74c3c; }
 
         .add-btn { width: 100%; padding: 12px; background: white; border: 2px dashed var(--primary); border-radius: 12px; color: var(--primary); font-size: 16px; font-weight: bold; margin-bottom: 25px; cursor: pointer; }
+
+        /* ➕ 일반 계산기 UI (수정됨) */
+        .calc-wrapper { background: #fff; border-radius: 12px; margin-bottom: 25px; border: 1px solid #ddd; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .calc-trigger { width: 100%; padding: 12px 15px; background: #34495e; color: white; border: none; text-align: left; font-weight: bold; display: flex; align-items: center; cursor: pointer; position: relative; }
         
-        /* 공유 버튼 그룹 */
+        /* 화살표 버튼 위치 및 크기 조정 */
+        #calc-arrow { 
+            position: absolute; 
+            right: 70px; /* 오른쪽 끝에서 약 5칸(공간) 왼쪽으로 이동 */
+            font-size: 1.25em; /* 버튼 크기 25% 키움 */
+            transition: 0.3s;
+        }
+        /* 상태 텍스트 표시 구역 */
+        #calc-status {
+            position: absolute;
+            right: 15px;
+            font-size: 12px;
+            color: #bdc3c7;
+            font-weight: normal;
+        }
+
+        .calc-content { display: none; padding: 15px; background: #fff; }
+        .calc-content.active { display: block; }
+        
+        .calc-display-group { display: flex; gap: 8px; margin-bottom: 15px; align-items: stretch; }
+        .calc-display { flex: 1; height: 60px; background: #2c3e50; color: #2ecc71; border-radius: 8px; text-align: right; padding: 15px; box-sizing: border-box; font-size: 22px; font-family: monospace; font-weight: bold; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5); overflow: hidden; white-space: nowrap; line-height: 30px; }
+        .c-btn.top-clr { width: 60px; background: var(--red); color: white; font-size: 20px; box-shadow: 0 2px 0 #c0392b; }
+
+        .calc-main-grid { display: grid; grid-template-columns: 3.5fr 1fr; gap: 8px; }
+        .num-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .op-pad { display: grid; grid-template-columns: 1fr; gap: 8px; }
+        
+        .c-btn { padding: 15px 5px; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; background: #f0f2f5; transition: 0.1s; box-shadow: 0 2px 0 #ccc; }
+        .c-btn:active { transform: translateY(2px); box-shadow: none; }
+        .c-btn.op { background: var(--blue); color: white; box-shadow: 0 2px 0 #2980b9; font-size: 20px; }
+        .c-btn.eq { background: var(--primary); color: white; box-shadow: 0 2px 0 #002244; }
+        .c-btn.back { background: #95a5a6; color: white; box-shadow: 0 2px 0 #7f8c8d; font-size: 18px; }
+
+        /* 메모리 구역 */
+        .memory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee; }
+        .mem-slot { text-align: center; }
+        .mem-label { font-size: 10px; color: #7f8c8d; margin-bottom: 4px; display: block; }
+        .mem-btn-group { display: flex; flex-direction: column; gap: 4px; }
+        .m-btn { font-size: 11px; padding: 6px 0; border: 1px solid #ddd; border-radius: 4px; background: white; cursor: pointer; }
+        .m-btn.save { color: var(--blue); border-color: var(--blue); }
+        .m-btn.load { background: #f8f9fa; font-weight: bold; white-space: nowrap; overflow: hidden; }
+
+        .m-clear-btn { width: 100%; margin-top: 12px; padding: 8px; background: #ecf0f1; border: 1px solid #ccc; border-radius: 6px; font-size: 11px; font-weight: bold; color: #7f8c8d; cursor: pointer; }
+
+        /* 기타 공유 등 */
         .share-group { display: flex; gap: 8px; margin-bottom: 25px; }
         .share-btn { flex: 1; padding: 12px 5px; border: none; border-radius: 8px; color: white; font-weight: bold; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; }
         .copy-btn { background: var(--blue); }
         .file-btn { background: #8e44ad; }
         .kakao-btn { background: var(--kakao); color: #3c1e1e; }
-
-        /* 메모장 (제목 외부 노출) */
-        .memo-title { font-weight: bold; font-size: 14px; margin-bottom: 8px; color: #333; padding-left: 2px; }
-        .memo-section { background: #fff9c4; padding: 12px; border-radius: 12px; }
-        textarea { width: 100%; height: 180px; border: 1px solid #d4c68d; background: transparent; padding: 10px; font-size: 14px; border-radius: 6px; resize: none; box-sizing: border-box; }
-        
-        .clear-all-btn { background: #95a5a6; color: white; width: 100%; margin-bottom: 20px; padding: 12px; border:none; border-radius:6px; font-weight:bold; }
+        .memo-title { font-weight: bold; font-size: 14px; margin-bottom: 8px; color: #333; }
+        .memo-section { background: #fff9c4; padding: 12px; border-radius: 12px; margin-bottom: 20px; }
+        textarea { width: 100%; height: 180px; border: 1px solid #d4c68d; background: transparent; padding: 10px; font-size: 14px; resize: none; box-sizing: border-box; }
+        .clear-all-btn { background: #95a5a6; color: white; width: 100%; margin-bottom: 20px; padding: 12px; border:none; border-radius:6px; font-weight:bold; cursor: pointer; }
         .plus { color: var(--blue); }
         .minus { color: var(--red); }
     </style>
@@ -75,6 +115,59 @@
 
 <button class="add-btn" onclick="addCalculator()">+ 새로운 항목 추가</button>
 
+<div class="calc-wrapper">
+    <button class="calc-trigger" onclick="toggleCalc()">
+        <span>🧮 일반 합산 계산기</span>
+        <span id="calc-arrow">▼</span>
+        <span id="calc-status">(접음)</span>
+    </button>
+    <div id="calc-content" class="calc-content">
+        <div class="calc-display-group">
+            <div id="calc-display" class="calc-display">0</div>
+            <button class="c-btn top-clr" onclick="clearCalc()">C</button>
+        </div>
+        
+        <div class="calc-main-grid">
+            <div class="num-pad">
+                <button class="c-btn" onclick="inputCalc('(')">(</button>
+                <button class="c-btn" onclick="inputCalc(')')">)</button>
+                <button class="c-btn back" onclick="backspaceCalc()">←</button>
+                
+                <button class="c-btn" onclick="inputCalc('7')">7</button>
+                <button class="c-btn" onclick="inputCalc('8')">8</button>
+                <button class="c-btn" onclick="inputCalc('9')">9</button>
+                
+                <button class="c-btn" onclick="inputCalc('4')">4</button>
+                <button class="c-btn" onclick="inputCalc('5')">5</button>
+                <button class="c-btn" onclick="inputCalc('6')">6</button>
+                
+                <button class="c-btn" onclick="inputCalc('1')">1</button>
+                <button class="c-btn" onclick="inputCalc('2')">2</button>
+                <button class="c-btn" onclick="inputCalc('3')">3</button>
+                
+                <button class="c-btn" onclick="inputCalc('0')">0</button>
+                <button class="c-btn" onclick="inputCalc('.')">.</button>
+                <button class="c-btn eq" onclick="runCalc()">=</button>
+            </div>
+            
+            <div class="op-pad">
+                <button class="c-btn op" onclick="inputCalc('/')">÷</button>
+                <button class="c-btn op" onclick="inputCalc('*')">×</button>
+                <button class="c-btn op" onclick="inputCalc('-')">-</button>
+                <button class="c-btn op" style="height: 100%;" onclick="inputCalc('+')">+</button>
+            </div>
+        </div>
+
+        <div class="memory-grid">
+            <div class="mem-slot"><span class="mem-label">M1</span><div class="mem-btn-group"><button class="m-btn save" onclick="memSave(1)">S</button><button id="m1-val" class="m-btn load" onclick="memLoad(1)">-</button></div></div>
+            <div class="mem-slot"><span class="mem-label">M2</span><div class="mem-btn-group"><button class="m-btn save" onclick="memSave(2)">S</button><button id="m2-val" class="m-btn load" onclick="memLoad(2)">-</button></div></div>
+            <div class="mem-slot"><span class="mem-label">M3</span><div class="mem-btn-group"><button class="m-btn save" onclick="memSave(3)">S</button><button id="m3-val" class="m-btn load" onclick="memLoad(3)">-</button></div></div>
+            <div class="mem-slot"><span class="mem-label">M4</span><div class="mem-btn-group"><button class="m-btn save" onclick="memSave(4)">S</button><button id="m4-val" class="m-btn load" onclick="memLoad(4)">-</button></div></div>
+        </div>
+        <button class="m-clear-btn" onclick="clearMemories()">🗑️ 모든 메모리 비우기 (M-CLR)</button>
+    </div>
+</div>
+
 <div class="share-group">
     <button class="share-btn copy-btn" onclick="copyToClipboard()">📋 클립보드 복사</button>
     <button class="share-btn file-btn" onclick="downloadAsFile()">💾 파일로 저장</button>
@@ -89,7 +182,79 @@
 <script>
     let cardCount = 0;
     let undoStack = [];
+    let calcExpr = "";
+    let memories = { 1: 0, 2: 0, 3: 0, 4: 0 };
 
+    function toggleCalc() {
+        const content = document.getElementById('calc-content');
+        const arrow = document.getElementById('calc-arrow');
+        const status = document.getElementById('calc-status');
+        const isActive = content.classList.toggle('active');
+        
+        arrow.innerText = isActive ? "▲" : "▼";
+        status.innerText = isActive ? "(펼침)" : "(접음)";
+    }
+
+    function formatCalcDisplay(expr) {
+        if (!expr) return "0";
+        return expr.replace(/\d+\.?\d*/g, (match) => {
+            const parts = match.split('.');
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            return parts.join('.');
+        });
+    }
+
+    function inputCalc(val) {
+        if (calcExpr === "" && ['*','/','+'].includes(val)) return;
+        calcExpr += val;
+        document.getElementById('calc-display').innerText = formatCalcDisplay(calcExpr);
+    }
+
+    function backspaceCalc() {
+        calcExpr = calcExpr.slice(0, -1);
+        document.getElementById('calc-display').innerText = formatCalcDisplay(calcExpr);
+    }
+
+    function clearCalc() {
+        calcExpr = "";
+        document.getElementById('calc-display').innerText = "0";
+    }
+
+    function runCalc() {
+        try {
+            if (!calcExpr) return;
+            const result = eval(calcExpr);
+            const formatted = Number.isInteger(result) ? result.toString() : result.toFixed(2);
+            document.getElementById('calc-display').innerText = formatCalcDisplay(formatted);
+            calcExpr = formatted;
+        } catch (e) {
+            document.getElementById('calc-display').innerText = "Error";
+            calcExpr = "";
+        }
+    }
+
+    function memSave(n) {
+        const currentVal = parseFloat(document.getElementById('calc-display').innerText.replace(/,/g, ''));
+        if (!isNaN(currentVal)) {
+            memories[n] = currentVal;
+            document.getElementById(`m${n}-val`).innerText = currentVal.toLocaleString();
+            localStorage.setItem(`mem${n}`, currentVal);
+        }
+    }
+
+    function memLoad(n) { if (memories[n] !== 0) inputCalc(memories[n].toString()); }
+
+    function clearMemories() {
+        if(confirm("모든 저장된 메모리를 삭제할까요?")) {
+            for(let i=1; i<=4; i++) {
+                memories[i] = 0;
+                document.getElementById(`m${i}-val`).innerText = "-";
+                localStorage.removeItem(`mem${i}`);
+            }
+        }
+    }
+
+    // 시계 및 상테크 코어
     function updateClock() {
         const now = new Date();
         const y = now.getFullYear();
@@ -97,78 +262,45 @@
         const d = String(now.getDate()).padStart(2, '0');
         const hh = String(now.getHours()).padStart(2, '0');
         const mm = String(now.getMinutes()).padStart(2, '0');
-        const rawSec = now.getSeconds();
-        const ss = String(Math.floor(rawSec / 5) * 5).padStart(2, '0');
+        const ss = String(Math.floor(now.getSeconds() / 5) * 5).padStart(2, '0');
         document.getElementById('clock').innerText = `${y}-${m}-${d} ${hh}:${mm}:${ss}`;
     }
     setInterval(updateClock, 1000); updateClock();
 
-    // 제목 칸 클릭 시 자동 비우기
-    function handleNameFocus(el, id) {
-        if (el.value.startsWith('제목 입력')) el.value = '';
-    }
-    function handleNameBlur(el, id) {
-        if (el.value.trim() === '') el.value = '제목 입력 #' + id;
-    }
+    function handleNameFocus(el, id) { if (el.value.startsWith('제목 입력')) el.value = ''; }
+    function handleNameBlur(el, id) { if (el.value.trim() === '') el.value = '제목 입력 #' + id; }
 
-    // 상세 내역 포함 텍스트 생성
     function generateSummary() {
         const now = document.getElementById('clock').innerText;
-        let text = `====================\n`;
-        text += `✈️ 상테크 리포트\n`;
-        text += `일시: ${now}\n`;
-        text += `====================\n\n`;
-
+        let text = `====================\n✈️ 상테크 리포트\n일시: ${now}\n====================\n\n`;
         const cards = document.querySelectorAll('.calc-card');
         cards.forEach((card, i) => {
             const id = card.id.replace('card-block-', '');
             const name = document.getElementById('name' + id).value;
             const resArea = document.getElementById('res' + id);
-            
-            const buy = document.getElementById('buy' + id).value || '0';
-            const face = document.getElementById('face' + id).value || '0';
-            const rate = document.getElementById('rate' + id).value || '0';
-
             text += `${i + 1}. ${name}\n`;
             if (resArea.style.display !== 'none') {
-                const sell = document.getElementById('sell' + id).innerText;
-                const mile = document.getElementById('mile' + id).innerText;
-                const profit = document.getElementById('profit' + id).innerText;
-                const unit = document.getElementById('unit' + id).innerText;
-
-                text += `  - 입력: ${Number(buy).toLocaleString()}원 / ${Number(face).toLocaleString()}원 / ${rate}%\n`;
-                text += `  - 결과: 매입 ${sell} / ${mile}마일리지\n`;
-                text += `  ▶ 손익: ${profit} (1마일당 ${unit})\n`;
-            } else {
-                text += `  - (입력된 데이터가 없습니다)\n`;
+                text += `  - 매입: ${document.getElementById('sell'+id).innerText} / ${document.getElementById('mile'+id).innerText}마일\n`;
+                text += `  ▶ 손익: ${document.getElementById('profit'+id).innerText}\n`;
             }
             text += `--------------------\n`;
         });
-
         const memo = document.getElementById('mainMemo').value;
-        if (memo) text += `\n[📝 통합 메모]\n${memo}\n`;
-        text += `\n====================`;
+        if (memo) text += `\n[📝 메모]\n${memo}\n`;
         return text;
     }
 
-    function copyToClipboard() {
-        const text = generateSummary();
-        navigator.clipboard.writeText(text).then(() => alert("상세 리포트가 복사되었습니다!"));
-    }
-
+    function copyToClipboard() { navigator.clipboard.writeText(generateSummary()).then(() => alert("리포트 복사됨!")); }
     function downloadAsFile() {
-        const text = generateSummary();
-        const blob = new Blob([text], { type: 'text/plain' });
+        const blob = new Blob([generateSummary()], { type: 'text/plain' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = `상테크_상세리포트_${new Date().getTime()}.txt`;
+        a.download = `상테크_리포트_${new Date().getTime()}.txt`;
         a.click();
     }
-
     function shareKakao() {
-        const text = generateSummary();
-        navigator.clipboard.writeText(text).then(() => {
-            alert("리포트가 복사되었습니다. 카카오톡 실행 후 붙여넣기 해주세요!");
+        navigator.clipboard.writeText(generateSummary()).then(() => {
+            alert("복사되었습니다. 카톡 실행 후 붙여넣기 하세요!");
             window.location.href = "kakaotalk://";
         });
     }
@@ -192,7 +324,6 @@
             face: document.getElementById('face' + id).value,
             rate: document.getElementById('rate' + id).value,
             time: timeStr,
-            timestamp: now.getTime(),
             locked: card ? card.classList.contains('locked') : false
         };
         localStorage.setItem('calcData' + id, JSON.stringify(data));
@@ -203,17 +334,15 @@
         saveState();
         const card = document.getElementById('card-block-' + id);
         const btn = card.querySelector('.lock-btn');
-        const delBtn = card.querySelector('.del-item-btn');
-        const inputs = card.querySelectorAll('input');
         const isLocked = !card.classList.contains('locked');
         if (isLocked) {
             card.classList.add('locked'); btn.innerText = "🔓 해제"; btn.classList.add('active');
-            if(delBtn) delBtn.style.visibility = 'hidden';
-            inputs.forEach(i => i.disabled = true);
+            card.querySelectorAll('input').forEach(i => i.disabled = true);
+            card.querySelector('.del-item-btn').style.visibility = 'hidden';
         } else {
             card.classList.remove('locked'); btn.innerText = "🔒 잠금"; btn.classList.remove('active');
-            if(delBtn) delBtn.style.visibility = 'visible';
-            inputs.forEach(i => i.disabled = false);
+            card.querySelectorAll('input').forEach(i => i.disabled = false);
+            card.querySelector('.del-item-btn').style.visibility = 'visible';
         }
         autoSaveCard(id);
     }
@@ -223,11 +352,9 @@
         const face = Number(document.getElementById('face'+n).value);
         const rate = Number(document.getElementById('rate'+n).value);
         if(!buy || !face) { document.getElementById('res'+n).style.display = 'none'; return; }
-        
         const sell = Math.round(face * (1 - (rate / 100)));
         const mile = Math.floor(buy / 1500);
         const profit = sell - buy;
-        
         document.getElementById('res'+n).style.display = 'grid';
         document.getElementById('sell'+n).innerText = sell.toLocaleString() + "원";
         document.getElementById('mile'+n).innerText = mile.toLocaleString();
@@ -261,9 +388,7 @@
         const html = `
         <div class="calc-card ${data.locked ? 'locked' : ''}" id="card-block-${id}">
             <div class="card-header-row">
-                <input type="text" id="name${id}" class="name-input" value="${data.name}" 
-                       onfocus="handleNameFocus(this, ${id})" onblur="handleNameBlur(this, ${id})" 
-                       ${data.locked?'disabled':''}>
+                <input type="text" id="name${id}" class="name-input" value="${data.name}" onfocus="handleNameFocus(this, ${id})" onblur="handleNameBlur(this, ${id})" ${data.locked?'disabled':''}>
                 <span id="time${id}" class="update-time">${data.time || ''}</span>
                 <button class="lock-btn ${data.locked?'active':''}" onclick="toggleLock(${id})">${data.locked?'🔓 해제':'🔒 잠금'}</button>
                 <button class="del-item-btn" onclick="deleteCard(${id})" style="visibility:${data.locked?'hidden':'visible'}">✕</button>
@@ -279,7 +404,7 @@
                 <div class="res-item"><span style="font-size:11px;color:#888;">매입가</span><span id="sell${id}" class="res-val">-</span></div>
                 <div class="res-item"><span style="font-size:11px;color:#888;">마일리지</span><span id="mile${id}" class="res-val">-</span></div>
                 <div class="res-item"><span style="font-size:11px;color:#888;">손익</span><span id="profit${id}" class="res-val">-</span></div>
-                <div class="res-item unit-price"><span style="font-size:11px;color:#888;">1마일당 비용</span><span id="unit${id}" class="res-val">-</span></div>
+                <div class="res-item unit-price"><span style="font-size:11px;color:#888;">1마일 비용</span><span id="unit${id}" class="res-val">-</span></div>
             </div>
         </div>`;
         document.getElementById('calculator-list').insertAdjacentHTML('beforeend', html);
@@ -291,13 +416,16 @@
         if (keys.length === 0) { for(let i=1; i<=3; i++) createCard(i); } 
         else { keys.sort((a,b)=>a-b).forEach(k => createCard(k, JSON.parse(localStorage.getItem('calcData'+k)))); }
         document.getElementById('mainMemo').value = localStorage.getItem('userMemo') || '';
+        for(let i=1; i<=4; i++) {
+            const mv = localStorage.getItem(`mem${i}`);
+            if(mv) { memories[i] = parseFloat(mv); document.getElementById(`m${i}-val`).innerText = memories[i].toLocaleString(); }
+        }
         saveState();
     }
     function addCalculator() { saveState(); cardCount++; createCard(cardCount); }
     function deleteCard(id) { if(confirm("삭제할까요?")) { saveState(); document.getElementById('card-block-'+id).remove(); localStorage.removeItem('calcData'+id); } }
-    function clearAllData() { if(confirm("모든 데이터를 초기화하시겠습니까?")) { localStorage.clear(); location.reload(); } }
+    function clearAllData() { if(confirm("초기화하시겠습니까?")) { localStorage.clear(); location.reload(); } }
     init();
 </script>
 </body>
 </html>
-
