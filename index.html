@@ -270,18 +270,26 @@
     function handleNameFocus(el, id) { if (el.value.startsWith('제목 입력')) el.value = ''; }
     function handleNameBlur(el, id) { if (el.value.trim() === '') el.value = '제목 입력 #' + id; }
 
-    function generateSummary() {
+        function generateSummary() {
         const now = document.getElementById('clock').innerText;
         let text = `====================\n✈️ 상테크 리포트\n일시: ${now}\n====================\n\n`;
         const cards = document.querySelectorAll('.calc-card');
         cards.forEach((card, i) => {
             const id = card.id.replace('card-block-', '');
             const name = document.getElementById('name' + id).value;
+            const buy = document.getElementById('buy' + id).value;
+            const face = document.getElementById('face' + id).value;
+            const rate = document.getElementById('rate' + id).value;
             const resArea = document.getElementById('res' + id);
+            
             text += `${i + 1}. ${name}\n`;
             if (resArea.style.display !== 'none') {
+                text += `  - 입력: ${Number(buy).toLocaleString()}원 / ${Number(face).toLocaleString()}원 (${rate}%)\n`;
                 text += `  - 매입: ${document.getElementById('sell'+id).innerText} / ${document.getElementById('mile'+id).innerText}마일\n`;
-                text += `  ▶ 손익: ${document.getElementById('profit'+id).innerText}\n`;
+                text += `  - 손익: ${document.getElementById('profit'+id).innerText}\n`;
+                text += `  ▶ 마일당 단가: ${document.getElementById('unit'+id).innerText}\n`;
+            } else {
+                text += `  (데이터가 입력되지 않음)\n`;
             }
             text += `--------------------\n`;
         });
@@ -429,3 +437,4 @@
 </script>
 </body>
 </html>
+
