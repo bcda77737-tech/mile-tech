@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>상테크 마스터 Pro</title>
+    <title>상테크 마스터 Pro </title>
     <style>
         :root { --primary: #003366; --red: #ff4d4d; --blue: #3498db; --bg: #f0f4f8; --lock: #5d6d7e; --gray: #bdc3c7; --kakao: #fee500; }
         body { font-family: -apple-system, sans-serif; padding: 45px 15px 60px 15px; background-color: var(--bg); margin: 0; }
@@ -22,18 +22,18 @@
         .calc-card.locked { border-top-color: var(--lock); background-color: #f8f9fa; }
         .card-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 8px; }
         
-        /* 제목 입력창 및 화살표 디자인 */
-        .name-input-wrapper { position: relative; width: 45%; }
+        .name-input-wrapper { position: relative; width: 48%; cursor: pointer; }
         .name-input-wrapper::after { 
             content: "▼"; 
             position: absolute; 
-            right: 8px; 
+            right: 2px; 
             top: 50%; 
             transform: translateY(-50%); 
-            font-size: 10px; 
+            font-size: 12px; 
             color: var(--primary); 
             pointer-events: none;
-            opacity: 0.7;
+            opacity: 0.8;
+            padding: 10px;
         }
         .name-input { 
             border: none; 
@@ -43,12 +43,12 @@
             color: var(--primary); 
             width: 100% !important; 
             background: transparent; 
-            padding-right: 22px !important; /* 화살표와 글자 겹침 방지 */
+            padding: 5px 25px 5px 5px !important; 
             box-sizing: border-box;
+            border-radius: 0;
             -webkit-appearance: none;
         }
 
-        /* 아이폰 기본 화살표 제거 */
         input::-webkit-calendar-picker-indicator {
             display: none !important;
             -webkit-appearance: none;
@@ -73,7 +73,6 @@
             -webkit-appearance: none;
         }
         
-        /* ... 이하 나머지 스타일 및 스크립트 동일 ... */
         .result-area { margin-top: 12px; padding-top: 10px; border-top: 1px dashed #eee; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; display: none; }
         .res-item { background: #f9f9f9; padding: 8px; border-radius: 6px; text-align: center; }
         .res-val { font-weight: bold; font-size: 14px; display: block; }
@@ -125,8 +124,6 @@
     <option value="롯데">
     <option value="현대">
     <option value="신세계">
-    <option value="해피머니">
-    <option value="컬쳐랜드">
     <option value="직접 입력">
 </datalist>
 
@@ -157,9 +154,6 @@
         </div>
         <div class="calc-main-grid">
             <div class="num-pad">
-                <button class="c-btn" onclick="inputCalc('(')">(</button>
-                <button class="c-btn" onclick="inputCalc(')')">)</button>
-                <button class="c-btn back" onclick="backspaceCalc()">←</button>
                 <button class="c-btn" onclick="inputCalc('7')">7</button>
                 <button class="c-btn" onclick="inputCalc('8')">8</button>
                 <button class="c-btn" onclick="inputCalc('9')">9</button>
@@ -207,7 +201,6 @@
     let calcExpr = "";
     let memories = { 1: 0, 2: 0, 3: 0, 4: 0 };
 
-    /* --- 기본 유틸리티 --- */
     function toggleCalc() {
         const content = document.getElementById('calc-content');
         const arrow = document.getElementById('calc-arrow');
@@ -288,8 +281,14 @@
     }
     setInterval(updateClock, 1000); updateClock();
 
-    function handleNameFocus(el, id) { if (el.value.startsWith('제목 입력')) el.value = ''; }
-    function handleNameBlur(el, id) { if (el.value.trim() === '') el.value = '제목 입력 #' + id; }
+    function handleNameFocus(el, id) { 
+        if (el.value.startsWith('제목 입력')) el.value = ''; 
+        el.setAttribute('placeholder', '선택 또는 입력');
+    }
+    
+    function handleNameBlur(el, id) { 
+        if (el.value.trim() === '') el.value = '제목 입력 #' + id; 
+    }
 
     function calculate(n) {
         const face = Number(document.getElementById('face'+n).value); 
@@ -456,7 +455,7 @@
         const html = `
         <div class="calc-card ${data.locked ? 'locked' : ''}" id="card-block-${id}">
             <div class="card-header-row">
-                <div class="name-input-wrapper" style="${data.locked ? 'opacity:0.6' : ''}">
+                <div class="name-input-wrapper" style="${data.locked ? 'opacity:0.6' : ''}" onclick="this.querySelector('input').focus()">
                     <input type="text" id="name${id}" class="name-input" 
                            value="${data.name}" list="title-options" autocomplete="off" 
                            onfocus="handleNameFocus(this, ${id})" 
