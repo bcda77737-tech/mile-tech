@@ -2,11 +2,11 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>상테크 마스터 Pro </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>상테크 마스터 Pro</title>
     <style>
         :root { --primary: #003366; --red: #ff4d4d; --blue: #3498db; --bg: #f0f4f8; --lock: #5d6d7e; --gray: #bdc3c7; --kakao: #fee500; }
-        body { font-family: sans-serif; padding: 45px 15px 60px 15px; background-color: var(--bg); margin: 0; }
+        body { font-family: -apple-system, sans-serif; padding: 45px 15px 60px 15px; background-color: var(--bg); margin: 0; }
         
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         #clock { font-weight: bold; color: #555; font-size: 14.5px; min-width: 140px; }
@@ -17,7 +17,10 @@
         .calc-card { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 15px; border-top: 4px solid var(--primary); }
         .calc-card.locked { border-top-color: var(--lock); background-color: #f8f9fa; }
         .card-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 18px; }
-        .name-input { border: none; border-bottom: 1.5px solid #ddd; font-weight: bold; font-size: 15px; color: var(--primary); width: 45% !important; background: transparent; }
+        
+        /* 제목 입력창 16px 적용 */
+        .name-input { border: none; border-bottom: 1.5px solid #ddd; font-weight: bold; font-size: 16px !important; color: var(--primary); width: 45% !important; background: transparent; }
+        
         .update-time { font-size: 9px; color: #999; text-align: right; flex-grow: 1; white-space: nowrap; overflow: hidden; }
         .lock-btn { background: white; border: 1.5px solid var(--gray); border-radius: 6px; padding: 5px 0; font-size: 11px; font-weight: bold; width: 58px; text-align: center; }
         .lock-btn.active { background: var(--lock); color: white; }
@@ -26,7 +29,17 @@
         .input-row { display: flex; gap: 8px; margin-bottom: 10px; }
         .input-box { flex: 1; }
         label { display: block; font-size: 11px; color: #888; margin-bottom: 3px; }
-        input[type="number"], input[type="text"] { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; box-sizing: border-box; }
+        
+        /* 아이폰 확대 방지를 위해 16px 필수 */
+        input[type="number"], input[type="text"] { 
+            width: 100%; 
+            padding: 10px; 
+            border: 1px solid #ddd; 
+            border-radius: 8px; 
+            font-size: 16px; 
+            box-sizing: border-box; 
+            -webkit-appearance: none;
+        }
         
         .result-area { margin-top: 12px; padding-top: 10px; border-top: 1px dashed #eee; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; display: none; }
         .res-item { background: #f9f9f9; padding: 8px; border-radius: 6px; text-align: center; }
@@ -35,6 +48,7 @@
 
         .add-btn { width: 100%; padding: 12px; background: white; border: 2px dashed var(--primary); border-radius: 12px; color: var(--primary); font-size: 16px; font-weight: bold; margin-bottom: 25px; cursor: pointer; }
 
+        /* ... 이하 기존 스타일 유지 ... */
         .calc-wrapper { background: #fff; border-radius: 12px; margin-bottom: 25px; border: 1px solid #ddd; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .calc-trigger { width: 100%; padding: 12px 15px; background: #34495e; color: white; border: none; text-align: left; font-weight: bold; display: flex; align-items: center; cursor: pointer; position: relative; }
         #calc-arrow { position: absolute; right: 70px; font-size: 1.25em; transition: 0.3s; }
@@ -294,14 +308,12 @@
         return text;
     }
 
-    /* --- 복사 기능 수정 (2중 로직) --- */
+    /* --- 복사 기능 (2중 로직) --- */
     function copyToClipboard() {
         const content = generateSummary();
-        
-        // 방법 1: 최신 navigator API
         if (navigator.clipboard && window.isSecureContext) {
             navigator.clipboard.writeText(content)
-                .then(() => alert("리포트가 클립보드에 복사되었습니다!"))
+                .then(() => alert("리포트가 복사되었습니다!"))
                 .catch(() => fallbackCopy(content));
         } else {
             fallbackCopy(content);
@@ -309,16 +321,15 @@
     }
 
     function fallbackCopy(text) {
-        // 방법 2: 텍스트에리어 생성 후 복사 (가장 확실한 방법)
         const textArea = document.createElement("textarea");
         textArea.value = text;
         document.body.appendChild(textArea);
         textArea.select();
         try {
             document.execCommand('copy');
-            alert("리포트가 복사되었습니다! (호환 모드)");
+            alert("리포트가 복사되었습니다!");
         } catch (err) {
-            alert("복사에 실패했습니다. 메모장에서 직접 복사해주세요.");
+            alert("복사에 실패했습니다.");
         }
         document.body.removeChild(textArea);
     }
@@ -333,7 +344,6 @@
 
     function shareKakao() {
         const content = generateSummary();
-        // 카톡 공유 시에도 우선 복사 시도
         if (navigator.clipboard && window.isSecureContext) {
             navigator.clipboard.writeText(content).then(() => {
                 alert("내용이 복사되었습니다. 카톡 실행 후 '붙여넣기' 하세요!");
@@ -348,7 +358,7 @@
         }
     }
 
-    /* --- 저장 및 관리 --- */
+    /* --- 데이터 관리 --- */
     document.addEventListener('input', (e) => {
         const target = e.target;
         const id = target.id.replace(/[^\d]/g, ''); 
