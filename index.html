@@ -12,7 +12,6 @@
         #clock { font-weight: bold; color: #555; font-size: 14px; min-width: 130px; }
         
         .top-btns { display: flex; gap: 5px; align-items: center; }
-        /* 버튼 공통 스타일 */
         .top-btn-item { padding: 6px 10px; border-radius: 20px; text-decoration: none; font-weight: bold; font-size: 12px; text-align: center; white-space: nowrap; }
         
         .undo-btn { background: #ffffff; border: 1.5px solid #ccc; color: #333; cursor: pointer; }
@@ -21,10 +20,40 @@
 
         .calc-card { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 15px; border-top: 4px solid var(--primary); }
         .calc-card.locked { border-top-color: var(--lock); background-color: #f8f9fa; }
-        .card-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 10px; }
+        .card-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 8px; }
         
-        /* 아이폰 확대 방지를 위한 16px */
-        .name-input { border: none; border-bottom: 1.5px solid #ddd; font-weight: bold; font-size: 16px; color: var(--primary); width: 40% !important; background: transparent; }
+        /* 제목 입력창 및 화살표 디자인 */
+        .name-input-wrapper { position: relative; width: 45%; }
+        .name-input-wrapper::after { 
+            content: "▼"; 
+            position: absolute; 
+            right: 8px; 
+            top: 50%; 
+            transform: translateY(-50%); 
+            font-size: 10px; 
+            color: var(--primary); 
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        .name-input { 
+            border: none; 
+            border-bottom: 1.5px solid #ddd; 
+            font-weight: bold; 
+            font-size: 16px; 
+            color: var(--primary); 
+            width: 100% !important; 
+            background: transparent; 
+            padding-right: 22px !important; /* 화살표와 글자 겹침 방지 */
+            box-sizing: border-box;
+            -webkit-appearance: none;
+        }
+
+        /* 아이폰 기본 화살표 제거 */
+        input::-webkit-calendar-picker-indicator {
+            display: none !important;
+            -webkit-appearance: none;
+        }
+
         .update-time { font-size: 9px; color: #999; text-align: right; flex-grow: 1; white-space: nowrap; overflow: hidden; }
         .lock-btn { background: white; border: 1.5px solid var(--gray); border-radius: 6px; padding: 5px 0; font-size: 11px; font-weight: bold; width: 55px; text-align: center; }
         .lock-btn.active { background: var(--lock); color: white; }
@@ -44,6 +73,7 @@
             -webkit-appearance: none;
         }
         
+        /* ... 이하 나머지 스타일 및 스크립트 동일 ... */
         .result-area { margin-top: 12px; padding-top: 10px; border-top: 1px dashed #eee; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; display: none; }
         .res-item { background: #f9f9f9; padding: 8px; border-radius: 6px; text-align: center; }
         .res-val { font-weight: bold; font-size: 14px; display: block; }
@@ -51,7 +81,6 @@
 
         .add-btn { width: 100%; padding: 12px; background: white; border: 2px dashed var(--primary); border-radius: 12px; color: var(--primary); font-size: 16px; font-weight: bold; margin-bottom: 25px; cursor: pointer; }
 
-        /* 합산 계산기 스타일 */
         .calc-wrapper { background: #fff; border-radius: 12px; margin-bottom: 25px; border: 1px solid #ddd; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .calc-trigger { width: 100%; padding: 12px 15px; background: #34495e; color: white; border: none; text-align: left; font-weight: bold; display: flex; align-items: center; cursor: pointer; position: relative; }
         #calc-arrow { position: absolute; right: 70px; font-size: 1.25em; transition: 0.3s; }
@@ -96,6 +125,8 @@
     <option value="롯데">
     <option value="현대">
     <option value="신세계">
+    <option value="해피머니">
+    <option value="컬쳐랜드">
     <option value="직접 입력">
 </datalist>
 
@@ -260,7 +291,6 @@
     function handleNameFocus(el, id) { if (el.value.startsWith('제목 입력')) el.value = ''; }
     function handleNameBlur(el, id) { if (el.value.trim() === '') el.value = '제목 입력 #' + id; }
 
-    /* --- 핵심 계산 로직 (1500원당 마일리지 소수점 버림 적용) --- */
     function calculate(n) {
         const face = Number(document.getElementById('face'+n).value); 
         const count = Number(document.getElementById('count'+n).value); 
@@ -275,10 +305,7 @@
         const totalBuy = buy * count;
         const totalSell = sellPrice * count;
         const sellRate = ((1 - (sellPrice / face)) * 100).toFixed(1);
-        
-        // 1장당 마일리지 계산 시 1500으로 나눈 뒤 소수점 버림
         const totalMile = Math.floor(buy / 1500) * count;
-        
         const netCost = totalBuy - totalSell;
         const unitPrice = totalMile > 0 ? (netCost / totalMile).toFixed(2) : "0";
 
@@ -315,7 +342,6 @@
         return text;
     }
 
-    /* --- 복사 기능 (iOS 최적화 2중 로직) --- */
     function copyToClipboard() {
         const content = generateSummary();
         if (navigator.clipboard && window.isSecureContext) {
@@ -336,7 +362,7 @@
             document.execCommand('copy');
             alert("리포트가 복사되었습니다!");
         } catch (err) {
-            alert("복사 실패. 메모장에서 직접 복사해주세요.");
+            alert("복사 실패. 직접 복사해주세요.");
         }
         document.body.removeChild(textArea);
     }
@@ -351,21 +377,10 @@
 
     function shareKakao() {
         const content = generateSummary();
-        if (navigator.clipboard && window.isSecureContext) {
-            navigator.clipboard.writeText(content).then(() => {
-                alert("내용이 복사되었습니다. 카톡 실행 후 '붙여넣기' 하세요!");
-                window.location.href = "kakaotalk://";
-            }).catch(() => {
-                fallbackCopy(content);
-                window.location.href = "kakaotalk://";
-            });
-        } else {
-            fallbackCopy(content);
-            window.location.href = "kakaotalk://";
-        }
+        fallbackCopy(content);
+        window.location.href = "kakaotalk://";
     }
 
-    /* --- 데이터 관리 로직 --- */
     document.addEventListener('input', (e) => {
         const target = e.target;
         const id = target.id.replace(/[^\d]/g, ''); 
@@ -393,7 +408,8 @@
             locked: card ? card.classList.contains('locked') : false
         };
         localStorage.setItem('calcData' + id, JSON.stringify(data));
-        document.getElementById('time' + id).innerText = (data.locked ? "🔒 " : "") + timeStr;
+        const timeEl = document.getElementById('time' + id);
+        if(timeEl) timeEl.innerText = (data.locked ? "🔒 " : "") + timeStr;
     }
 
     function toggleLock(id) {
@@ -405,10 +421,12 @@
             card.classList.add('locked'); btn.innerText = "🔓 해제"; btn.classList.add('active');
             card.querySelectorAll('input').forEach(i => i.disabled = true);
             card.querySelector('.del-item-btn').style.visibility = 'hidden';
+            card.querySelector('.name-input-wrapper').style.opacity = '0.6';
         } else {
             card.classList.remove('locked'); btn.innerText = "🔒 잠금"; btn.classList.remove('active');
             card.querySelectorAll('input').forEach(i => i.disabled = false);
             card.querySelector('.del-item-btn').style.visibility = 'visible';
+            card.querySelector('.name-input-wrapper').style.opacity = '1';
         }
         autoSaveCard(id);
     }
@@ -438,11 +456,13 @@
         const html = `
         <div class="calc-card ${data.locked ? 'locked' : ''}" id="card-block-${id}">
             <div class="card-header-row">
-                <input type="text" id="name${id}" class="name-input" 
-                       value="${data.name}" list="title-options" autocomplete="off" 
-                       onfocus="handleNameFocus(this, ${id})" 
-                       onblur="handleNameBlur(this, ${id})" 
-                       ${data.locked?'disabled':''}>
+                <div class="name-input-wrapper" style="${data.locked ? 'opacity:0.6' : ''}">
+                    <input type="text" id="name${id}" class="name-input" 
+                           value="${data.name}" list="title-options" autocomplete="off" 
+                           onfocus="handleNameFocus(this, ${id})" 
+                           onblur="handleNameBlur(this, ${id})" 
+                           ${data.locked?'disabled':''}>
+                </div>
                 <span id="time${id}" class="update-time">${data.time || ''}</span>
                 <button class="lock-btn ${data.locked?'active':''}" onclick="toggleLock(${id})">${data.locked?'🔓 해제':'🔒 잠금'}</button>
                 <button class="del-item-btn" onclick="deleteCard(${id})" style="visibility:${data.locked?'hidden':'visible'}">✕</button>
