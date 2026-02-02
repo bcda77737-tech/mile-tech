@@ -60,7 +60,7 @@
         .c-btn.eq { background: var(--primary); color: white; box-shadow: 0 2px 0 #002244; }
         .c-btn.clr { background: var(--red); color: white; box-shadow: 0 2px 0 #c0392b; }
 
-        .share-btn { width: 100%; padding: 12px; background: var(--blue); color: white; border: none; border-radius: 8px; font-weight: bold; margin-bottom: 25px; }
+        .share-btn { width: 100%; padding: 12px; background: var(--blue); color: white; border: none; border-radius: 8px; font-weight: bold; }
         textarea { width: 100%; height: 160px; border: 1px solid #ddd; border-radius: 8px; padding: 10px; box-sizing: border-box; background: transparent; }
         
         .feedback-section { background: white; padding: 15px; border-radius: 12px; border: 1px solid #ddd; margin-bottom: 50px; }
@@ -119,7 +119,10 @@
     </div>
 </div>
 
-<button class="share-btn" onclick="copyToClipboard()">📋 리포트 내용 복사하기</button>
+<div style="display: flex; gap: 8px; margin-bottom: 25px;">
+    <button class="share-btn" onclick="copyToClipboard()" style="flex: 1;">📋 리포트 복사</button>
+    <button id="reportSendBtn" class="share-btn" onclick="sendReportToSheet()" style="flex: 1; background: var(--orange);">📤 시트로 전송</button>
+</div>
 
 <div style="font-weight:bold; font-size:14px; margin-bottom:8px;">📝 개인 메모장</div>
 <div style="background:#fff9c4; padding:12px; border-radius:12px; margin-bottom:20px;">
@@ -136,7 +139,7 @@
 <script>
     let calcExpr = "";
     let memories = { 1: null, 2: null, 3: null };
-    let lastBackup = null; // 되돌리기를 위한 백업 변수
+    let lastBackup = null;
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbycTfBzRS5NoIB9kSySED6_-KWyeUiZF02Byd_X7Kd0mgBtCncxtgxSaXYzRGsZ350/exec";
 
     function updateClock() {
@@ -155,7 +158,6 @@
     function undoLastAction() {
         if(!lastBackup) { alert("되돌릴 기록이 없습니다."); return; }
         if(confirm("이전 상태로 되돌릴까요?")) {
-            // 현재 calcData 관련 로컬스토리지 삭제 후 백업본 복원
             Object.keys(localStorage).filter(k => k.startsWith('calcData')).forEach(k => localStorage.removeItem(k));
             Object.keys(lastBackup).forEach(k => localStorage.setItem(k, lastBackup[k]));
             location.reload();
@@ -259,7 +261,7 @@
     });
 
     function addCalculator() {
-        backupCurrentState(); // 추가 전 상태 백업
+        backupCurrentState();
         const cards = document.querySelectorAll('.calc-card');
         let maxId = 0;
         cards.forEach(c => { const id = parseInt(c.id.replace('card-block-','')); if(id > maxId) maxId = id; });
@@ -280,21 +282,8 @@
         autoSaveCard(id);
     }
 
-    function deleteCard(id) { 
-        if(confirm("삭제할까요?")) { 
-            backupCurrentState(); // 삭제 직전 상태 백업
-            document.getElementById('card-block-'+id).remove(); 
-            localStorage.removeItem('calcData'+id); 
-        } 
-    }
-    
-    function clearAllData() { 
-        if(confirm("초기화할까요?")) { 
-            backupCurrentState(); // 초기화 직전 상태 백업
-            localStorage.clear(); 
-            location.reload(); 
-        } 
-    }
+    function deleteCard(id) { if(confirm("삭제할까요?")) { backupCurrentState(); document.getElementById('card-block-'+id).remove(); localStorage.removeItem('calcData'+id); } }
+    function clearAllData() { if(confirm("초기화할까요?")) { backupCurrentState(); localStorage.clear(); location.reload(); } }
     
     function toggleCalc() { const c = document.getElementById('calc-content'); c.classList.toggle('active'); document.getElementById('calc-arrow').innerText = c.classList.contains('active') ? "▲" : "▼"; }
     function inputCalc(v) { calcExpr += v; document.getElementById('calc-display').innerText = calcExpr; }
@@ -319,47 +308,66 @@
         }
     }
 
+    // 공통 리포트 생성 함수
+    function generateReport() {
+        let report = "📊 [상테크 리포트 상세]\n\n";
+        const cards = document.querySelectorAll('.calc-card');
+        let hasData = false;
+        let index = 1;
+
+        cards.forEach(card => {
+            const id = card.id.replace('card-block-', '');
+            const selValue = document.getElementById('nameSelect'+id).value;
+            const customValue = document.getElementById('nameCustomInput'+id).value;
+            const title = (selValue === '직접 입력') ? (customValue || '직접입력') : selValue;
+            const timeStr = document.getElementById('time'+id).innerText.replace("🔒 ", "");
+            const face = document.getElementById('face'+id).value;
+            const count = document.getElementById('count'+id).value;
+            const buy = document.getElementById('buy'+id).value;
+            const sellPrice = document.getElementById('sellprice'+id).value;
+            const totalBuy = document.getElementById('totalBuy'+id).innerText;
+            const totalMile = document.getElementById('totalMile'+id).innerText;
+            const unitPrice = document.getElementById('unit'+id).innerText;
+
+            if(totalBuy && totalBuy !== "-") {
+                report += `${index}. ${title} (${timeStr})\n`;
+                report += `└ 요약: ${Number(face).toLocaleString()}원 × ${count}매\n`;
+                report += `└ 가격: 구매 ${Number(buy).toLocaleString()}원 / 매입 ${Number(sellPrice).toLocaleString()}원\n`;
+                report += `└ 결과: 총액 ${totalBuy} / 마일리지 ${totalMile} / 단가 : ${unitPrice}\n\n`;
+                hasData = true;
+                index++;
+            }
+        });
+
+        const memo = document.getElementById('mainMemo').value;
+        if(memo) report += "📝 메모사항:\n" + memo;
+        return (hasData || memo) ? report : null;
+    }
+
     function copyToClipboard() {
-        try {
-            let report = "📊 [상테크 리포트 상세]\n\n";
-            const cards = document.querySelectorAll('.calc-card');
-            let hasData = false;
-            let index = 1;
+        const report = generateReport();
+        if(!report) { alert("복사할 내용이 없습니다."); return; }
+        const t = document.createElement("textarea");
+        document.body.appendChild(t);
+        t.value = report; t.select();
+        document.execCommand('copy');
+        document.body.removeChild(t);
+        alert("상세 리포트가 복사되었습니다!");
+    }
 
-            cards.forEach(card => {
-                const id = card.id.replace('card-block-', '');
-                const selValue = document.getElementById('nameSelect'+id).value;
-                const customValue = document.getElementById('nameCustomInput'+id).value;
-                const title = (selValue === '직접 입력') ? (customValue || '직접입력') : selValue;
-                const timeStr = document.getElementById('time'+id).innerText.replace("🔒 ", "");
-                const face = document.getElementById('face'+id).value;
-                const count = document.getElementById('count'+id).value;
-                const buy = document.getElementById('buy'+id).value;
-                const sellPrice = document.getElementById('sellprice'+id).value;
-                const totalBuy = document.getElementById('totalBuy'+id).innerText;
-                const totalMile = document.getElementById('totalMile'+id).innerText;
-                const unitPrice = document.getElementById('unit'+id).innerText;
+    // 시트로 리포트 전송
+    function sendReportToSheet() {
+        const report = generateReport();
+        if(!report) { alert("전송할 내용이 없습니다."); return; }
 
-                if(totalBuy && totalBuy !== "-") {
-                    report += `${index}. ${title} (${timeStr})\n`;
-                    report += `└ 요약: ${Number(face).toLocaleString()}원 × ${count}매\n`;
-                    report += `└ 가격: 구매 ${Number(buy).toLocaleString()}원 / 매입 ${Number(sellPrice).toLocaleString()}원\n`;
-                    report += `└ 결과: 총액 ${totalBuy} / 마일리지 ${totalMile} / 단가 : ${unitPrice}\n\n`;
-                    hasData = true;
-                    index++;
-                }
-            });
+        const btn = document.getElementById('reportSendBtn');
+        const originalText = btn.innerText;
+        btn.disabled = true; btn.innerText = "전송 중..."; btn.style.opacity = "0.6";
 
-            const memo = document.getElementById('mainMemo').value;
-            if(memo) report += "📝 메모사항:\n" + memo;
-            if(!hasData && !memo) { alert("복사할 내용이 없습니다."); return; }
-            const t = document.createElement("textarea");
-            document.body.appendChild(t);
-            t.value = report; t.select();
-            document.execCommand('copy');
-            document.body.removeChild(t);
-            alert("상세 리포트가 복사되었습니다!");
-        } catch (err) { alert("복사 중 오류가 발생했습니다."); }
+        fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ report: report }) })
+        .then(() => { alert("구글 시트에 리포트가 저장되었습니다."); })
+        .catch(() => { alert("오류 발생"); })
+        .finally(() => { btn.disabled = false; btn.innerText = originalText; btn.style.opacity = "1"; });
     }
 
     function sendOpinion(e) {
