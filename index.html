@@ -20,14 +20,15 @@
         .calc-card.locked { border-top-color: var(--lock); background-color: #f8f9fa; }
         .card-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 8px; }
         
-        .name-input-wrapper { display: flex; gap: 5px; width: 60%; align-items: center; }
+        .name-input-wrapper { display: flex; gap: 5px; width: 55%; align-items: center; }
         .name-select { width: 80px; padding: 5px; border: none; border-bottom: 1.5px solid #ddd; font-weight: bold; color: var(--primary); background: transparent; outline: none; }
         .name-custom-input { flex-grow: 1; padding: 5px; border: none; border-bottom: 1.5px solid #ddd; font-weight: bold; font-size: 15px; color: var(--primary); background: transparent; outline: none; }
 
-        .update-time { font-size: 9px; color: #999; flex-grow: 1; text-align: right; }
-        .lock-btn { background: white; border: 1.5px solid var(--gray); border-radius: 6px; padding: 4px 8px; font-size: 11px; font-weight: bold; min-width: 55px; }
+        .update-time { font-size: 9px; color: #999; flex-grow: 1; text-align: right; white-space: nowrap; }
+        /* 잠금 버튼 수정: 고정폭 설정으로 레이아웃 깨짐 방지 */
+        .lock-btn { background: white; border: 1.5px solid var(--gray); border-radius: 6px; padding: 4px 0; font-size: 11px; font-weight: bold; width: 65px; text-align: center; flex-shrink: 0; }
         .lock-btn.active { background: var(--lock); color: white; }
-        .del-item-btn { background: var(--red); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; font-weight: bold; }
+        .del-item-btn { background: var(--red); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; font-weight: bold; flex-shrink: 0; }
 
         .input-row { display: flex; gap: 8px; margin-bottom: 10px; }
         .input-box { flex: 1; }
@@ -43,7 +44,8 @@
         .clear-all-btn { background: #95a5a6; color: white; width: 100%; margin-bottom: 15px; padding: 10px; border:none; border-radius:6px; font-weight:bold; }
 
         .calc-wrapper { background: #fff; border-radius: 12px; margin-bottom: 20px; border: 1px solid #ddd; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .calc-trigger { width: 100%; padding: 12px; background: #34495e; color: white; border: none; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+        /* 계산기 트리거 버튼 크기 상향 */
+        .calc-trigger { width: 100%; padding: 16px; background: #34495e; color: white; border: none; font-weight: bold; display: flex; justify-content: space-between; align-items: center; font-size: 18px; }
         .calc-content { display: none; padding: 15px; }
         .calc-content.active { display: block; }
         .calc-display { width: 100%; height: 50px; background: #2c3e50; color: #2ecc71; border-radius: 8px; text-align: right; padding: 10px; font-size: 22px; font-family: monospace; font-weight: bold; margin-bottom: 10px; box-sizing: border-box; line-height: 30px; }
@@ -60,7 +62,11 @@
         .c-btn.eq { background: var(--primary); color: white; box-shadow: 0 2px 0 #002244; }
         .c-btn.clr { background: var(--red); color: white; box-shadow: 0 2px 0 #c0392b; }
 
-        .share-btn { width: 100%; padding: 12px; background: var(--blue); color: white; border: none; border-radius: 8px; font-weight: bold; }
+        /* 하단 전송/복사 버튼 크기 및 폰트 상향 */
+        .share-btn { width: 100%; padding: 16px 10px; border: none; border-radius: 8px; font-weight: bold; font-size: 18px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .share-btn.blue { background: var(--blue); color: white; }
+        .share-btn.orange { background: var(--orange); color: white; }
+        
         textarea { width: 100%; height: 160px; border: 1px solid #ddd; border-radius: 8px; padding: 10px; box-sizing: border-box; background: transparent; }
         
         .feedback-section { background: white; padding: 15px; border-radius: 12px; border: 1px solid #ddd; margin-bottom: 50px; }
@@ -121,8 +127,8 @@
 </div>
 
 <div style="display: flex; gap: 8px; margin-bottom: 25px;">
-    <button class="share-btn" onclick="copyToClipboard()" style="flex: 1;">📋 리포트 복사</button>
-    <button id="reportSendBtn" class="share-btn" onclick="sendReportToSheet()" style="flex: 1; background: var(--orange);">📤 시트로 전송</button>
+    <button class="share-btn blue" onclick="copyToClipboard()" style="flex: 1;">📋 리포트 복사</button>
+    <button id="reportSendBtn" class="share-btn orange" onclick="sendReportToSheet()" style="flex: 1;">📤 시트로 전송</button>
 </div>
 
 <div style="font-weight:bold; font-size:14px; margin-bottom:8px;">📝 개인 메모장</div>
@@ -141,7 +147,6 @@
     let calcExpr = "";
     let memories = { 1: null, 2: null, 3: null };
     let lastBackup = null;
-    // [업데이트됨] 보내주신 새로운 스크립트 주소 적용
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzb-Qc3NqJmK8geBHt0_K4rKJJ6k7Zc29finborJ_v1FP_RG1eA1jiA5gO01RrY4Fs/exec";
 
     function updateClock() {
@@ -295,16 +300,13 @@
         let reportText = "📊 [상테크 리포트 상세]\n\n";
         const cards = document.querySelectorAll('.calc-card');
         let hasData = false;
-
         cards.forEach((card, idx) => {
             const id = card.id.replace('card-block-', '');
             const totalBuy = document.getElementById('totalBuy' + id).innerText;
-
             if (totalBuy && totalBuy !== "-") {
                 const title = (document.getElementById('nameSelect' + id).value === '직접 입력') 
                     ? document.getElementById('nameCustomInput' + id).value 
                     : document.getElementById('nameSelect' + id).value;
-                
                 const face = document.getElementById('face' + id).value;
                 const count = document.getElementById('count' + id).value;
                 const buyPrice = document.getElementById('buy' + id).value;
@@ -312,16 +314,10 @@
                 const totalSell = document.getElementById('totalSell' + id).innerText;
                 const mile = document.getElementById('totalMile' + id).innerText;
                 const unit = document.getElementById('unit' + id).innerText;
-
-                reportText += `${idx + 1}. ${title}\n`;
-                reportText += `└ 요약: ${Number(face).toLocaleString()}원 × ${count}매\n`;
-                reportText += `└ 지출: 총 ${totalBuy} (개당 ${Number(buyPrice).toLocaleString()}원)\n`;
-                reportText += `└ 회수: 총 ${totalSell} (개당 ${Number(sellPrice).toLocaleString()}원)\n`;
-                reportText += `└ 결과: 마일리지 ${mile} / 단가 : ${unit}\n\n`;
+                reportText += `${idx + 1}. ${title}\n└ 요약: ${Number(face).toLocaleString()}원 × ${count}매\n└ 지출: 총 ${totalBuy} (개당 ${Number(buyPrice).toLocaleString()}원)\n└ 회수: 총 ${totalSell} (개당 ${Number(sellPrice).toLocaleString()}원)\n└ 결과: 마일리지 ${mile} / 단가 : ${unit}\n\n`;
                 hasData = true;
             }
         });
-
         const m = document.getElementById('mainMemo').value;
         if (m) reportText += "📝 메모사항:\n" + m;
         return hasData || m ? reportText : null;
@@ -337,45 +333,56 @@
     async function sendReportToSheet() {
         const cards = document.querySelectorAll('.calc-card');
         const btn = document.getElementById('reportSendBtn');
-        const originalText = btn.innerText;
+        const originalText = btn.innerHTML;
         let sentCount = 0;
-
-        btn.disabled = true;
-        btn.innerText = "전송 중...";
-
+        btn.disabled = true; btn.innerText = "전송 중...";
         for (const card of cards) {
             const id = card.id.replace('card-block-', '');
             const totalBuy = document.getElementById('totalBuy' + id).innerText;
-
             if (totalBuy && totalBuy !== "-") {
-                const title = (document.getElementById('nameSelect' + id).value === '직접 입력') 
-                    ? document.getElementById('nameCustomInput' + id).value 
-                    : document.getElementById('nameSelect' + id).value;
-                
+                const title = (document.getElementById('nameSelect' + id).value === '직접 입력') ? document.getElementById('nameCustomInput' + id).value : document.getElementById('nameSelect' + id).value;
                 const face = document.getElementById('face' + id).value;
                 const count = document.getElementById('count' + id).value;
                 const totalSell = document.getElementById('totalSell' + id).innerText;
                 const mile = document.getElementById('totalMile' + id).innerText;
                 const unit = document.getElementById('unit' + id).innerText;
-
                 const summary = `[${title}] ${Number(face).toLocaleString()}원×${count}매 | 지출:${totalBuy} | 회수:${totalSell} | 단가:${unit} (${mile})`;
-
-                const formData = new URLSearchParams();
-                formData.append("report", summary);
-
-                try {
-                    await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: formData });
-                    sentCount++;
-                } catch (err) {
-                    console.error(err);
-                }
+                const formData = new URLSearchParams(); formData.append("report", summary);
+                try { await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: formData }); sentCount++; } catch (err) { console.error(err); }
             }
         }
-
         if (sentCount > 0) alert(`${sentCount}개의 항목을 시트에 개별 저장했습니다!`);
-        btn.disabled = false;
-        btn.innerText = originalText;
+        btn.disabled = false; btn.innerHTML = originalText;
     }
+
+    function sendOpinion(e) {
+        const val = document.getElementById('opinionInput').value;
+        if(!val) return;
+        const btn = document.getElementById('sendBtn');
+        btn.disabled = true; btn.innerText = "전송 중...";
+        const formData = new URLSearchParams(); formData.append("opinion", val);
+        fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: formData })
+        .then(() => { alert("의견 전송완료"); document.getElementById('opinionInput').value=""; loadOpinions(); })
+        .catch(() => alert("전송 오류")).finally(() => { btn.disabled = false; btn.innerText = "의견 보내기"; });
+    }
+
+    function loadOpinions() {
+        fetch(SCRIPT_URL).then(res => res.json()).then(data => {
+            document.getElementById('feedbackList').innerHTML = data.slice(0,10).map(i => `<div style="border-bottom:1px solid #eee; padding:5px 0;"><b>${new Date(i.date).toLocaleDateString()}</b>: ${i.opinion}</div>`).join('');
+        }).catch(() => {});
+    }
+
+    function init() {
+        const keys = Object.keys(localStorage).filter(k => k.startsWith('calcData')).map(k => parseInt(k.replace('calcData', ''))).sort((a,b)=>a-b);
+        if (keys.length === 0) { for(let i=1; i<=2; i++) createCard(i); } 
+        else { keys.forEach(k => createCard(k, JSON.parse(localStorage.getItem('calcData'+k)))); }
+        document.getElementById('mainMemo').value = localStorage.getItem('userMemo') || '';
+        loadOpinions();
+    }
+    init();
+</script>
+</body>
+</html>
 
     function sendOpinion(e) {
         const val = document.getElementById('opinionInput').value;
@@ -407,3 +414,4 @@
 </script>
 </body>
 </html>
+
