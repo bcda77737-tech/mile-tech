@@ -141,8 +141,8 @@
     let calcExpr = "";
     let memories = { 1: null, 2: null, 3: null };
     let lastBackup = null;
-    // 시트 전송용 URL
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbycTfBzRS5NoIB9kSySED6_-KWyeUiZF02Byd_X7Kd0mgBtCncxtgxSaXYzRGsZ350/exec";
+    // [업데이트됨] 보내주신 새로운 스크립트 주소 적용
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzb-Qc3NqJmK8geBHt0_K4rKJJ6k7Zc29finborJ_v1FP_RG1eA1jiA5gO01RrY4Fs/exec";
 
     function updateClock() {
         const now = new Date();
@@ -291,7 +291,6 @@
         }
     }
 
-    // 1. 강화된 클립보드용 리포트 생성 (지출/회수/단가 명시)
     function generateFullReport() {
         let reportText = "📊 [상테크 리포트 상세]\n\n";
         const cards = document.querySelectorAll('.calc-card');
@@ -306,7 +305,6 @@
                     ? document.getElementById('nameCustomInput' + id).value 
                     : document.getElementById('nameSelect' + id).value;
                 
-                const timeStr = document.getElementById('time'+id).innerText.replace("🔒 ", "");
                 const face = document.getElementById('face' + id).value;
                 const count = document.getElementById('count' + id).value;
                 const buyPrice = document.getElementById('buy' + id).value;
@@ -315,7 +313,7 @@
                 const mile = document.getElementById('totalMile' + id).innerText;
                 const unit = document.getElementById('unit' + id).innerText;
 
-                reportText += `${idx + 1}. ${title} (${timeStr})\n`;
+                reportText += `${idx + 1}. ${title}\n`;
                 reportText += `└ 요약: ${Number(face).toLocaleString()}원 × ${count}매\n`;
                 reportText += `└ 지출: 총 ${totalBuy} (개당 ${Number(buyPrice).toLocaleString()}원)\n`;
                 reportText += `└ 회수: 총 ${totalSell} (개당 ${Number(sellPrice).toLocaleString()}원)\n`;
@@ -336,7 +334,6 @@
         alert("상세 리포트가 복사되었습니다!");
     }
 
-    // 2. 시트로 개별 행(Row) 전송 로직
     async function sendReportToSheet() {
         const cards = document.querySelectorAll('.calc-card');
         const btn = document.getElementById('reportSendBtn');
@@ -361,28 +358,21 @@
                 const mile = document.getElementById('totalMile' + id).innerText;
                 const unit = document.getElementById('unit' + id).innerText;
 
-                // 시트에는 핵심 요약만 한 줄씩 개별 전송
                 const summary = `[${title}] ${Number(face).toLocaleString()}원×${count}매 | 지출:${totalBuy} | 회수:${totalSell} | 단가:${unit} (${mile})`;
 
                 const formData = new URLSearchParams();
                 formData.append("report", summary);
 
                 try {
-                    await fetch(SCRIPT_URL, {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        body: formData
-                    });
+                    await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: formData });
                     sentCount++;
                 } catch (err) {
-                    console.error("항목 전송 실패:", title, err);
+                    console.error(err);
                 }
             }
         }
 
         if (sentCount > 0) alert(`${sentCount}개의 항목을 시트에 개별 저장했습니다!`);
-        else alert("전송할 유효 데이터가 없습니다.");
-        
         btn.disabled = false;
         btn.innerText = originalText;
     }
