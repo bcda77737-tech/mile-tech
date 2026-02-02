@@ -64,6 +64,7 @@
         textarea { width: 100%; height: 160px; border: 1px solid #ddd; border-radius: 8px; padding: 10px; box-sizing: border-box; background: transparent; }
         
         .feedback-section { background: white; padding: 15px; border-radius: 12px; border: 1px solid #ddd; margin-bottom: 50px; }
+        .feedback-list { margin-top: 15px; font-size: 12px; color: #666; max-height: 150px; overflow-y: auto; }
     </style>
 </head>
 <body>
@@ -140,7 +141,7 @@
     let calcExpr = "";
     let memories = { 1: null, 2: null, 3: null };
     let lastBackup = null;
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbycTfBzRS5NoIB9kSySED6_-KWyeUiZF02Byd_X7Kd0mgBtCncxtgxSaXYzRGsZ350/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzb-Qc3NqJmK8geBHt0_K4rKJJ6k7Zc29finborJ_v1FP_RG1eA1jiA5gO01RrY4Fs/exec";
 
     function updateClock() {
         const now = new Date();
@@ -170,9 +171,7 @@
         const buy = Number(document.getElementById('buy'+id).value); 
         const sellPrice = Number(document.getElementById('sellprice'+id).value); 
         const resDiv = document.getElementById('res'+id);
-
         if(!buy || !count || !face || !sellPrice) { resDiv.style.display = 'none'; return; }
-
         resDiv.style.display = 'grid';
         document.getElementById('totalBuy'+id).innerText = (buy * count).toLocaleString() + "원";
         document.getElementById('totalSell'+id).innerText = (sellPrice * count).toLocaleString() + "원";
@@ -184,7 +183,6 @@
     function createCard(id, savedData = null) {
         const data = savedData || { name: '롯데', customName: '', face: '', count: '', buy: '', sellPrice: '', time: '', locked: false };
         const isCustom = (data.name === '직접 입력');
-
         const html = `
         <div class="calc-card ${data.locked ? 'locked' : ''}" id="card-block-${id}">
             <div class="card-header-row">
@@ -216,7 +214,6 @@
             </div>
         </div>`;
         document.getElementById('calculator-list').insertAdjacentHTML('beforeend', html);
-        
         const sel = document.getElementById('nameSelect'+id);
         const inp = document.getElementById('nameCustomInput'+id);
         sel.value = data.name;
@@ -233,13 +230,7 @@
         const card = document.getElementById('card-block-'+id);
         if(!card) return;
         const now = new Date();
-        const yy = String(now.getFullYear()).slice(-2);
-        const mm = String(now.getMonth() + 1).padStart(2, '0');
-        const dd = String(now.getDate()).padStart(2, '0');
-        const hh = String(now.getHours()).padStart(2, '0');
-        const min = String(now.getMinutes()).padStart(2, '0');
-        const timeStr = `${yy}-${mm}-${dd} ${hh}:${min}`;
-        
+        const timeStr = `${String(now.getFullYear()).slice(-2)}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
         const data = {
             name: document.getElementById('nameSelect'+id).value,
             customName: document.getElementById('nameCustomInput'+id).value,
@@ -272,10 +263,6 @@
         const card = document.getElementById('card-block-'+id);
         const isLocked = card.classList.toggle('locked');
         card.querySelectorAll('input, select').forEach(el => el.disabled = isLocked);
-        if(!isLocked) {
-            const sel = document.getElementById('nameSelect'+id);
-            document.getElementById('nameCustomInput'+id).disabled = (sel.value !== '직접 입력');
-        }
         card.querySelector('.lock-btn').innerText = isLocked ? '🔓 해제' : '🔒 잠금';
         card.querySelector('.lock-btn').classList.toggle('active', isLocked);
         card.querySelector('.del-item-btn').style.visibility = isLocked ? 'hidden' : 'visible';
@@ -284,7 +271,6 @@
 
     function deleteCard(id) { if(confirm("삭제할까요?")) { backupCurrentState(); document.getElementById('card-block-'+id).remove(); localStorage.removeItem('calcData'+id); } }
     function clearAllData() { if(confirm("초기화할까요?")) { backupCurrentState(); localStorage.clear(); location.reload(); } }
-    
     function toggleCalc() { const c = document.getElementById('calc-content'); c.classList.toggle('active'); document.getElementById('calc-arrow').innerText = c.classList.contains('active') ? "▲" : "▼"; }
     function inputCalc(v) { calcExpr += v; document.getElementById('calc-display').innerText = calcExpr; }
     function clearCalc() { calcExpr = ""; document.getElementById('calc-display').innerText = "0"; }
@@ -294,94 +280,96 @@
         const display = document.getElementById('calc-display').innerText;
         const btn = document.getElementById('mem'+n);
         if (memories[n] === null) {
-            if (display === "0" || !display) { alert("저장할 숫자가 없습니다."); return; }
+            if (display === "0" || !display) return;
             memories[n] = display;
             btn.innerText = "M" + n + ": " + display;
             btn.classList.add('active');
         } else {
             inputCalc(memories[n]);
-            if(confirm("M"+n+"의 내용을 비울까요?")) {
-                memories[n] = null;
-                btn.innerText = "M" + n + " 저장";
-                btn.classList.remove('active');
-            }
+            if(confirm("M"+n+" 비울까요?")) { memories[n] = null; btn.innerText = "M" + n + " 저장"; btn.classList.remove('active'); }
         }
     }
 
-    // 공통 리포트 생성 함수
-    function generateReport() {
-        let report = "📊 [상테크 리포트 상세]\n\n";
+    function generateFullReport() {
+        let reportText = "📊 [상테크 리포트 상세]\n\n";
         const cards = document.querySelectorAll('.calc-card');
         let hasData = false;
-        let index = 1;
-
-        cards.forEach(card => {
+        cards.forEach((card, idx) => {
             const id = card.id.replace('card-block-', '');
-            const selValue = document.getElementById('nameSelect'+id).value;
-            const customValue = document.getElementById('nameCustomInput'+id).value;
-            const title = (selValue === '직접 입력') ? (customValue || '직접입력') : selValue;
-            const timeStr = document.getElementById('time'+id).innerText.replace("🔒 ", "");
+            const title = (document.getElementById('nameSelect'+id).value === '직접 입력') ? document.getElementById('nameCustomInput'+id).value : document.getElementById('nameSelect'+id).value;
             const face = document.getElementById('face'+id).value;
             const count = document.getElementById('count'+id).value;
-            const buy = document.getElementById('buy'+id).value;
-            const sellPrice = document.getElementById('sellprice'+id).value;
             const totalBuy = document.getElementById('totalBuy'+id).innerText;
-            const totalMile = document.getElementById('totalMile'+id).innerText;
-            const unitPrice = document.getElementById('unit'+id).innerText;
-
             if(totalBuy && totalBuy !== "-") {
-                report += `${index}. ${title} (${timeStr})\n`;
-                report += `└ 요약: ${Number(face).toLocaleString()}원 × ${count}매\n`;
-                report += `└ 가격: 구매 ${Number(buy).toLocaleString()}원 / 매입 ${Number(sellPrice).toLocaleString()}원\n`;
-                report += `└ 결과: 총액 ${totalBuy} / 마일리지 ${totalMile} / 단가 : ${unitPrice}\n\n`;
+                reportText += `${idx+1}. ${title}\n└ ${Number(face).toLocaleString()}원 × ${count}매\n└ 총액: ${totalBuy} / 단가: ${document.getElementById('unit'+id).innerText}\n\n`;
                 hasData = true;
-                index++;
             }
         });
-
-        const memo = document.getElementById('mainMemo').value;
-        if(memo) report += "📝 메모사항:\n" + memo;
-        return (hasData || memo) ? report : null;
+        const m = document.getElementById('mainMemo').value;
+        if(m) reportText += "📝 메모:\n" + m;
+        return (hasData || m) ? reportText : null;
     }
 
     function copyToClipboard() {
-        const report = generateReport();
-        if(!report) { alert("복사할 내용이 없습니다."); return; }
-        const t = document.createElement("textarea");
-        document.body.appendChild(t);
-        t.value = report; t.select();
-        document.execCommand('copy');
-        document.body.removeChild(t);
-        alert("상세 리포트가 복사되었습니다!");
+        const txt = generateFullReport();
+        if(!txt) { alert("내용이 없습니다."); return; }
+        const t = document.createElement("textarea"); document.body.appendChild(t); t.value = txt; t.select(); document.execCommand('copy'); document.body.removeChild(t);
+        alert("복사되었습니다!");
     }
 
-    // 시트로 리포트 전송
     function sendReportToSheet() {
-        const report = generateReport();
-        if(!report) { alert("전송할 내용이 없습니다."); return; }
+    const txt = generateFullReport();
+    if(!txt) { alert("전송할 내용이 없습니다."); return; }
+    
+    const btn = document.getElementById('reportSendBtn');
+    btn.disabled = true; btn.innerText = "전송 중...";
 
-        const btn = document.getElementById('reportSendBtn');
-        const originalText = btn.innerText;
-        btn.disabled = true; btn.innerText = "전송 중..."; btn.style.opacity = "0.6";
+    // 데이터를 폼 형식으로 변환하여 유실 방지
+    const formData = new URLSearchParams();
+    formData.append("report", txt);
 
-        fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ report: report }) })
-        .then(() => { alert("구글 시트에 리포트가 저장되었습니다."); })
-        .catch(() => { alert("오류 발생"); })
-        .finally(() => { btn.disabled = false; btn.innerText = originalText; btn.style.opacity = "1"; });
-    }
+    fetch(SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors', // 구글 스크립트 특유의 보안 응답 무시
+        body: formData
+    })
+    .then(() => {
+        alert("리포트가 reports 탭에 저장되었습니다!");
+    })
+    .catch((err) => {
+        console.error(err);
+        alert("전송 실패: " + err);
+    })
+    .finally(() => {
+        btn.disabled = false; 
+        btn.innerText = "📤 시트로 전송";
+    });
+}
 
-    function sendOpinion(e) {
-        const val = document.getElementById('opinionInput').value;
-        if(!val) return;
-        const btn = document.getElementById('sendBtn');
-        const originalText = btn.innerText;
-        btn.disabled = true; btn.innerText = "전송 중..."; btn.style.opacity = "0.6";
 
-        fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ opinion: val }) })
-        .then(() => { alert("전송완료"); document.getElementById('opinionInput').value=""; loadOpinions(); })
-        .catch(() => { alert("오류 발생"); })
-        .finally(() => { btn.disabled = false; btn.innerText = originalText; btn.style.opacity = "1"; });
-    }
+function sendOpinion(e) {
+    const val = document.getElementById('opinionInput').value;
+    if(!val) return;
+    
+    const btn = document.getElementById('sendBtn');
+    btn.disabled = true; btn.innerText = "전송 중...";
+
+    fetch(SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ "opinion": val })
+    })
+    .then(() => {
+        alert("의견이 전송되었습니다.");
+        document.getElementById('opinionInput').value = "";
+    })
+    .catch(() => alert("전송 오류"))
+    .finally(() => {
+        btn.disabled = false; btn.innerText = "의견 보내기";
+    });
+}
+
 
     function loadOpinions() {
         fetch(SCRIPT_URL).then(res => res.json()).then(data => {
