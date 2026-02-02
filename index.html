@@ -8,16 +8,15 @@
         :root { --primary: #003366; --red: #ff4d4d; --blue: #3498db; --bg: #f0f4f8; --lock: #5d6d7e; --gray: #bdc3c7; --orange: #f39c12; }
         body { font-family: -apple-system, sans-serif; padding: 45px 15px 60px 15px; background-color: var(--bg); margin: 0; }
         
-        /* 헤더 & 시계 */
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         #clock { font-weight: bold; color: #555; font-size: 14px; min-width: 130px; }
         .top-btns { display: flex; gap: 5px; }
-        .top-btn-item { padding: 6px 10px; border-radius: 20px; text-decoration: none; font-weight: bold; font-size: 11px; text-align: center; }
+        .top-btn-item { padding: 6px 10px; border-radius: 20px; text-decoration: none; font-weight: bold; font-size: 11px; text-align: center; border: none; cursor: pointer; }
+        .undo-btn { background: #7f8c8d; color: white; }
         .hanbang-btn { background: #ffcc00; color: #000; }
         .gogo-btn { background: #000; color: #fff; }
 
-        /* 카드 스타일 */
-        .calc-card { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 15px; border-top: 4px solid var(--primary); position: relative; }
+        .calc-card { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 15px; border-top: 4px solid var(--primary); }
         .calc-card.locked { border-top-color: var(--lock); background-color: #f8f9fa; }
         .card-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 8px; }
         
@@ -35,7 +34,6 @@
         label { display: block; font-size: 11px; color: #888; margin-bottom: 3px; }
         input[type="number"], input[type="text"] { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; -webkit-appearance: none; }
         
-        /* 결과 영역 */
         .result-area { margin-top: 12px; padding-top: 10px; border-top: 1px dashed #eee; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; display: none; }
         .res-item { background: #f9f9f9; padding: 8px; border-radius: 6px; text-align: center; }
         .res-val { font-weight: bold; font-size: 14px; display: block; }
@@ -44,14 +42,12 @@
         .add-btn { width: 100%; padding: 12px; background: white; border: 2px dashed var(--primary); border-radius: 12px; color: var(--primary); font-weight: bold; margin-bottom: 20px; }
         .clear-all-btn { background: #95a5a6; color: white; width: 100%; margin-bottom: 15px; padding: 10px; border:none; border-radius:6px; font-weight:bold; }
 
-        /* 계산기 래퍼 */
         .calc-wrapper { background: #fff; border-radius: 12px; margin-bottom: 20px; border: 1px solid #ddd; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .calc-trigger { width: 100%; padding: 12px; background: #34495e; color: white; border: none; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
         .calc-content { display: none; padding: 15px; }
         .calc-content.active { display: block; }
         .calc-display { width: 100%; height: 50px; background: #2c3e50; color: #2ecc71; border-radius: 8px; text-align: right; padding: 10px; font-size: 22px; font-family: monospace; font-weight: bold; margin-bottom: 10px; box-sizing: border-box; line-height: 30px; }
         
-        /* 메모리 & 키패드 */
         .mem-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 8px; }
         .mem-btn { padding: 8px; border: 1px solid var(--orange); border-radius: 6px; background: white; color: var(--orange); font-size: 11px; font-weight: bold; }
         .mem-btn.active { background: var(--orange); color: white; }
@@ -65,15 +61,9 @@
         .c-btn.clr { background: var(--red); color: white; box-shadow: 0 2px 0 #c0392b; }
 
         .share-btn { width: 100%; padding: 12px; background: var(--blue); color: white; border: none; border-radius: 8px; font-weight: bold; margin-bottom: 25px; }
+        textarea { width: 100%; height: 160px; border: 1px solid #ddd; border-radius: 8px; padding: 10px; box-sizing: border-box; background: transparent; }
         
-        /* 메모장 섹션 */
-        .memo-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .undo-btn { font-size: 11px; background: #7f8c8d; color: white; border: none; border-radius: 4px; padding: 2px 8px; cursor: pointer; }
-        textarea { width: 100%; height: 160px; border: 1px solid #ddd; border-radius: 8px; padding: 10px; box-sizing: border-box; background: transparent; font-size: 14px; line-height: 1.5; }
-        
-        /* 건의사항 */
         .feedback-section { background: white; padding: 15px; border-radius: 12px; border: 1px solid #ddd; margin-bottom: 50px; }
-        .feedback-list { margin-top: 15px; font-size: 12px; color: #666; max-height: 150px; overflow-y: auto; }
     </style>
 </head>
 <body>
@@ -81,6 +71,7 @@
 <div class="header">
     <div id="clock">로딩 중...</div>
     <div class="top-btns">
+        <button class="top-btn-item undo-btn" onclick="undoLastAction()">↩ 되돌리기</button>
         <a href="https://1bang.kr/pages/tp" class="top-btn-item hanbang-btn" target="_blank">한방</a>
         <a href="https://gogoexchange.co.kr/" class="top-btn-item gogo-btn" target="_blank">고고</a>
     </div>
@@ -130,10 +121,7 @@
 
 <button class="share-btn" onclick="copyToClipboard()">📋 리포트 내용 복사하기</button>
 
-<div class="memo-header">
-    <span style="font-weight:bold; font-size:14px;">📝 개인 메모장</span>
-    <button class="undo-btn" onclick="undoMemo()">↩ 되돌리기</button>
-</div>
+<div style="font-weight:bold; font-size:14px; margin-bottom:8px;">📝 개인 메모장</div>
 <div style="background:#fff9c4; padding:12px; border-radius:12px; margin-bottom:20px;">
     <textarea id="mainMemo" placeholder="메모를 입력하세요..."></textarea>
 </div>
@@ -148,7 +136,7 @@
 <script>
     let calcExpr = "";
     let memories = { 1: null, 2: null, 3: null };
-    let memoHistory = ""; // 메모 복구를 위한 변수
+    let lastBackup = null; // 되돌리기를 위한 백업 변수
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbycTfBzRS5NoIB9kSySED6_-KWyeUiZF02Byd_X7Kd0mgBtCncxtgxSaXYzRGsZ350/exec";
 
     function updateClock() {
@@ -156,6 +144,23 @@
         document.getElementById('clock').innerText = now.toLocaleString();
     }
     setInterval(updateClock, 1000); updateClock();
+
+    function backupCurrentState() {
+        const keys = Object.keys(localStorage).filter(k => k.startsWith('calcData'));
+        const currentData = {};
+        keys.forEach(k => { currentData[k] = localStorage.getItem(k); });
+        lastBackup = currentData;
+    }
+
+    function undoLastAction() {
+        if(!lastBackup) { alert("되돌릴 기록이 없습니다."); return; }
+        if(confirm("이전 상태로 되돌릴까요?")) {
+            // 현재 calcData 관련 로컬스토리지 삭제 후 백업본 복원
+            Object.keys(localStorage).filter(k => k.startsWith('calcData')).forEach(k => localStorage.removeItem(k));
+            Object.keys(lastBackup).forEach(k => localStorage.setItem(k, lastBackup[k]));
+            location.reload();
+        }
+    }
 
     function calculate(id) {
         const face = Number(document.getElementById('face'+id).value); 
@@ -250,22 +255,11 @@
     document.addEventListener('input', (e) => {
         const id = e.target.id.replace(/[^\d]/g, '');
         if(id) { autoSaveCard(id); calculate(id); }
-        if(e.target.id === 'mainMemo') {
-            // 메모 변경 전 상태를 복구용으로 살짝 저장 (완전 비었을 때만 방지)
-            if(e.target.value.length > 1) memoHistory = localStorage.getItem('userMemo') || "";
-            localStorage.setItem('userMemo', e.target.value);
-        }
+        if(e.target.id === 'mainMemo') localStorage.setItem('userMemo', e.target.value);
     });
 
-    function undoMemo() {
-        if(!memoHistory) { alert("되돌릴 기록이 없습니다."); return; }
-        if(confirm("이전 메모 상태로 복구할까요?")) {
-            document.getElementById('mainMemo').value = memoHistory;
-            localStorage.setItem('userMemo', memoHistory);
-        }
-    }
-
     function addCalculator() {
+        backupCurrentState(); // 추가 전 상태 백업
         const cards = document.querySelectorAll('.calc-card');
         let maxId = 0;
         cards.forEach(c => { const id = parseInt(c.id.replace('card-block-','')); if(id > maxId) maxId = id; });
@@ -286,8 +280,21 @@
         autoSaveCard(id);
     }
 
-    function deleteCard(id) { if(confirm("삭제할까요?")) { document.getElementById('card-block-'+id).remove(); localStorage.removeItem('calcData'+id); } }
-    function clearAllData() { if(confirm("초기화할까요?")) { localStorage.clear(); location.reload(); } }
+    function deleteCard(id) { 
+        if(confirm("삭제할까요?")) { 
+            backupCurrentState(); // 삭제 직전 상태 백업
+            document.getElementById('card-block-'+id).remove(); 
+            localStorage.removeItem('calcData'+id); 
+        } 
+    }
+    
+    function clearAllData() { 
+        if(confirm("초기화할까요?")) { 
+            backupCurrentState(); // 초기화 직전 상태 백업
+            localStorage.clear(); 
+            location.reload(); 
+        } 
+    }
     
     function toggleCalc() { const c = document.getElementById('calc-content'); c.classList.toggle('active'); document.getElementById('calc-arrow').innerText = c.classList.contains('active') ? "▲" : "▼"; }
     function inputCalc(v) { calcExpr += v; document.getElementById('calc-display').innerText = calcExpr; }
@@ -360,9 +367,7 @@
         if(!val) return;
         const btn = document.getElementById('sendBtn');
         const originalText = btn.innerText;
-        btn.disabled = true;
-        btn.innerText = "전송 중...";
-        btn.style.opacity = "0.6";
+        btn.disabled = true; btn.innerText = "전송 중..."; btn.style.opacity = "0.6";
 
         fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ opinion: val }) })
         .then(() => { alert("전송완료"); document.getElementById('opinionInput').value=""; loadOpinions(); })
@@ -380,9 +385,7 @@
         const keys = Object.keys(localStorage).filter(k => k.startsWith('calcData')).map(k => parseInt(k.replace('calcData', ''))).sort((a,b)=>a-b);
         if (keys.length === 0) { for(let i=1; i<=2; i++) createCard(i); } 
         else { keys.forEach(k => createCard(k, JSON.parse(localStorage.getItem('calcData'+k)))); }
-        const savedMemo = localStorage.getItem('userMemo') || '';
-        document.getElementById('mainMemo').value = savedMemo;
-        memoHistory = savedMemo; // 초기 기록 저장
+        document.getElementById('mainMemo').value = localStorage.getItem('userMemo') || '';
         loadOpinions();
     }
     init();
